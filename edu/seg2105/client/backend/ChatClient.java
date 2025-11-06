@@ -71,7 +71,7 @@ public class ChatClient extends AbstractClient
   {
     try
     {
-    	if (message.charAt(0) == '#') {
+    	if (message.startsWith("#")) {
     		handleCommand(message.substring(1));
     	} else {
     		sendToServer(message);
@@ -92,50 +92,57 @@ public class ChatClient extends AbstractClient
    */
   private void handleCommand(String command) throws IOException {
 	  String[] commandSplit = command.split(" ");
-	  	switch(commandSplit[0]) {
-			case "quit":
-				clientUI.display("Quitting");
-				quit();
-				break;
-			case "logoff":
-				clientUI.display("Logging off");
-				closeConnection();
-				break;
-			case "sethost":
+	  switch(commandSplit[0]) {
+	  	case "quit":
+			clientUI.display("Quitting");
+			closeConnection();
+			quit();
+			break;
+		case "logoff":
+			clientUI.display("Logging off");
+			closeConnection();
+			break;
+		case "sethost":
+			if (isConnected()) {
+				clientUI.display("Cannot set host unless logged off");
+			} else {
 				if (commandSplit.length > 1) {
 					clientUI.display("Host has been set to: " + commandSplit[1]);
 					setHost(commandSplit[1]);
 				} else {
 					clientUI.display("Host parameter missing");
 				}
-				break;
-			case "setport":
+			}
+			break;
+		case "setport":
+			if (isConnected()) {
+				clientUI.display("Cannot set port unless logged off");
+			} else {
 				if (commandSplit.length > 1) {
 					clientUI.display("Port has been set to: " + commandSplit[1]);
 					setPort(Integer.parseInt(commandSplit[1]));
 				} else {
 					clientUI.display("Port parameter missing");
 				}
-				break;
-			case "login":
-				if (isConnected()) {
-					clientUI.display("Cannot log in as user is already connected to server");
-				} else {
-					clientUI.display("Logging in");
-					openConnection();
-				}
-				break;
-			case "gethost":
-				clientUI.display("Host is: " + getHost());
-				break;
-			case "getport":
-				clientUI.display("Port is: " + getPort());
-				break;
-			default:
-				clientUI.display("Command not recognized");
 			}
-	  
-	  
+			break;
+		case "login":
+			if (isConnected()) {
+				clientUI.display("Cannot log in as user is already connected to server");
+			} else {
+				clientUI.display("Logging in");
+				openConnection();
+			}
+			break;
+		case "gethost":
+			clientUI.display("Host is: " + getHost());
+			break;
+		case "getport":
+			clientUI.display("Port is: " + getPort());
+			break;
+		default:
+			clientUI.display("Command not recognized");
+	  }
   }
   
   /**

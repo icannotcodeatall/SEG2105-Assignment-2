@@ -5,6 +5,8 @@ package edu.seg2105.edu.server.backend;
 
 
 import ocsf.server.*;
+import edu.seg2105.client.common.*;
+import edu.seg2105.edu.server.ui.ServerConsole;
 
 /**
  * This class overrides some of the methods in the abstract 
@@ -90,7 +92,6 @@ public class EchoServer extends AbstractServer
 	  System.out.println("Client " + client + " has disconnected from the server");
   }
   
-  
   //Class methods ***************************************************
   
   /**
@@ -123,6 +124,9 @@ public class EchoServer extends AbstractServer
     {
       System.out.println("ERROR - Could not listen for clients!");
     }
+    
+    ServerConsole serverConsole = new ServerConsole(sv);
+    serverConsole.accept();
   }
 }
 //End of EchoServer class

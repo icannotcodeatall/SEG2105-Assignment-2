@@ -6,13 +6,13 @@ package edu.seg2105.edu.server.ui;
 import java.io.*;
 import java.util.Scanner;
 
-import edu.seg2105.edu.server.*;
+import edu.seg2105.edu.server.backend.EchoServer;
 import edu.seg2105.client.common.*;
 
 /**
- * This class constructs the UI for a chat client.  It implements the
+ * This class constructs the UI for a server console.  It implements the
  * chat interface in order to activate the display() method.
- * Warning: Some of the code here is cloned in ServerConsole 
+ * Warning: Some of the code here was cloned from ClientConsole 
  *
  * @author Fran&ccedil;ois B&eacute;langer
  * @author Dr Timothy C. Lethbridge  
@@ -20,21 +20,12 @@ import edu.seg2105.client.common.*;
  */
 public class ServerConsole implements ChatIF 
 {
-  //Class variables *************************************************
-  
-  /**
-   * The default port to connect on.
-   */
-  final public static int DEFAULT_PORT = 5555;
-  
   //Instance variables **********************************************
   
   /**
-   * The instance of the client that created this ConsoleChat.
+   * The server to take user input in
    */
-  ChatClient client;
-  
-  
+  EchoServer server;
   
   /**
    * Scanner to read from the console
@@ -50,20 +41,9 @@ public class ServerConsole implements ChatIF
    * @param host The host to connect to.
    * @param port The port to connect on.
    */
-  public ClientConsole(String host, int port) 
+  public ServerConsole(EchoServer server) 
   {
-    try 
-    {
-      client= new ChatClient(host, port, this);
-      
-      
-    } 
-    catch(IOException exception) 
-    {
-      System.out.println("Error: Can't setup connection!"
-                + " Terminating client.");
-      System.exit(1);
-    }
+    this.server = server;
     
     // Create scanner object to read from console
     fromConsole = new Scanner(System.in); 
@@ -86,7 +66,13 @@ public class ServerConsole implements ChatIF
       while (true) 
       {
         message = fromConsole.nextLine();
-        client.handleMessageFromClientUI(message);
+        
+        if (message.startsWith("#")) {
+        	handleCommand(message.substring(1));
+        } else {
+        	display("SERVER MSG> " + message);
+            server.sendToAllClients("SERVER MSG> " + message);
+        }
       }
     } 
     catch (Exception ex) 
@@ -94,6 +80,51 @@ public class ServerConsole implements ChatIF
       System.out.println
         ("Unexpected error while reading from console!");
     }
+  }
+  
+  private void handleCommand(String command) throws IOException {
+	  String[] commandSplit = command.split(" ");
+	  switch(commandSplit[0]) {
+	  	case "quit":
+			display("Quitting the server");
+			server.stopListening();
+			server.close();
+			System.exit(0);
+			break;
+		case "stop":
+			display("Stopping the server");
+			server.stopListening();
+			break;
+		case "close":
+			display("Closing the server");
+			server.close();
+			break;
+		case "setport":
+			if (server.isListening() || server.getNumberOfClients() > 0) {
+				display("Cannot set port unless server is closed");
+			} else {
+				if (commandSplit.length > 1) {
+					display("Port has been set to: " + commandSplit[1]);
+					server.setPort(Integer.parseInt(commandSplit[1]));
+				} else {
+					display("Port parameter missing");
+				}
+			}
+			break;
+		case "start":
+			if (server.isListening()) {
+				display("Cannot start server as it is already listening for clients");
+			} else {
+				display("Starting server");
+				server.listen();
+			}
+			break;
+		case "getport":
+			display("Port is: " + server.getPort());
+			break;
+		default:
+			display("Command not recognized");
+	  }
   }
 
   /**
@@ -104,38 +135,7 @@ public class ServerConsole implements ChatIF
    */
   public void display(String message) 
   {
-    System.out.println("> " + message);
-  }
-
-  
-  //Class methods ***************************************************
-  
-  /**
-   * This method is responsible for the creation of the Client UI.
-   *
-   * @param args[0] The host to connect to.
-   */
-  public static void main(String[] args) 
-  {
-    String host = "";
-    int port = 0;
-
-
-    try
-    {
-      host = args[0];
-      port = Integer.parseInt(args[1]);
-    }
-    catch(ArrayIndexOutOfBoundsException e)
-    {
-      host = "localhost";
-      port = DEFAULT_PORT;
-    }
-    catch(NumberFormatException ne) {
-    	port = DEFAULT_PORT;
-    }
-    ClientConsole chat= new ClientConsole(host, port);
-    chat.accept();  //Wait for console data
+    System.out.println(message);
   }
 }
 //End of ConsoleChat class
