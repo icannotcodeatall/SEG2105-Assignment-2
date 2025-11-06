@@ -27,6 +27,11 @@ public class ChatClient extends AbstractClient
    * the display method in the client.
    */
   ChatIF clientUI; 
+  
+  /**
+   * The ID of the client
+   */
+  private String loginID;
 
   
   //Constructors ****************************************************
@@ -39,11 +44,12 @@ public class ChatClient extends AbstractClient
    * @param clientUI The interface type variable.
    */
   
-  public ChatClient(String host, int port, ChatIF clientUI) 
+  public ChatClient(String loginID, String host, int port, ChatIF clientUI) 
     throws IOException 
   {
     super(host, port); //Call the superclass constructor
     this.clientUI = clientUI;
+    this.loginID = loginID;
     openConnection();
   }
 
@@ -160,8 +166,8 @@ public class ChatClient extends AbstractClient
   
   	/**
 	 * Implements the hook method called each time an exception is thrown by the client's
-	 * thread that is waiting for messages from the server. The method may be
-	 * overridden by subclasses.
+	 * thread that is waiting for messages from the server. The method has been
+	 * overridden to display a message when there is a connection exception
 	 * 
 	 * @param exception
 	 *            the exception raised.
@@ -174,13 +180,26 @@ public class ChatClient extends AbstractClient
   	
   	/**
 	 * Implements the hook method called after the connection has been closed. The default
-	 * implementation does nothing. The method has been overriden to
-	 * perform special processing such as cleaning up and terminating, or
-	 * attempting to reconnect.
+	 * implementation does nothing. The method has been overridden to
+	 * display a message when the connection is closed
 	 */
   	@Override
 	protected void connectionClosed() {
   		clientUI.display("Connection closed");
+	}
+  	
+  	/**
+	 * Implements the hook method called after a connection has been established. The default
+	 * implementation does nothing. the method has been overridden to
+	 * to send a message upon establishing a connection
+	 */
+  	@Override
+	protected void connectionEstablished() {
+  		try { // Apparently you need to account for the IOException, but at the same time the AbstractClient hook method doesn't do that so I think this is the only way
+			sendToServer("#login " + loginID);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
 //End of ChatClient class

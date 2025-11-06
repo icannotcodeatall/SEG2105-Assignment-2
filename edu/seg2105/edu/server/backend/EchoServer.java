@@ -5,6 +5,9 @@ package edu.seg2105.edu.server.backend;
 
 
 import ocsf.server.*;
+
+import java.io.IOException;
+
 import edu.seg2105.client.common.*;
 import edu.seg2105.edu.server.ui.ServerConsole;
 
@@ -25,6 +28,11 @@ public class EchoServer extends AbstractServer
    * The default port to listen on.
    */
   final public static int DEFAULT_PORT = 5555;
+  
+  /**
+   * The key used for setInfo and getInfo
+   */
+  final private static String loginKey = "loginID";
   
   //Constructors ****************************************************
   
@@ -50,8 +58,34 @@ public class EchoServer extends AbstractServer
   public void handleMessageFromClient
     (Object msg, ConnectionToClient client)
   {
-    System.out.println("Message received: " + msg + " from " + client);
-    this.sendToAllClients(msg);
+	String msgStr = (String) msg;
+	
+	if (msgStr.startsWith("#login")) {
+		if (client.getInfo(loginKey) == null) {
+			String loginID = msgStr.substring(7);
+			if (loginID.isEmpty()) {
+				try {
+					client.sendToClient("Missing clientID");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				client.setInfo(loginKey, loginID);
+			}
+		} else {
+			try {
+				client.sendToClient("You are already logged in, cannot log in again");
+				client.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	} else {
+		String loginID = (String) client.getInfo(loginKey);
+		System.out.println("Message received: " + msg + " from " + loginID + ", " + client);
+		this.sendToAllClients(loginID + "> " + msg);
+	}
   }
     
   /**
