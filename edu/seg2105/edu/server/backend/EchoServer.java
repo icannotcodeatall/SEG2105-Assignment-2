@@ -60,18 +60,14 @@ public class EchoServer extends AbstractServer
   {
 	String msgStr = (String) msg;
 	
+	System.out.println("Message received: " + msg + " from " + client.getInfo(loginKey));
+	
 	if (msgStr.startsWith("#login")) {
 		if (client.getInfo(loginKey) == null) {
 			String loginID = msgStr.substring(7);
-			if (loginID.isEmpty()) {
-				try {
-					client.sendToClient("Missing clientID");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				client.setInfo(loginKey, loginID);
-			}
+			client.setInfo(loginKey, loginID);
+			System.out.println(client.getInfo(loginKey) + " has logged on");
+			this.sendToAllClients(client.getInfo(loginKey) + " has logged on");
 		} else {
 			try {
 				client.sendToClient("You are already logged in, cannot log in again");
@@ -82,9 +78,7 @@ public class EchoServer extends AbstractServer
 			
 		}
 	} else {
-		String loginID = (String) client.getInfo(loginKey);
-		System.out.println("Message received: " + msg + " from " + loginID + ", " + client);
-		this.sendToAllClients(loginID + "> " + msg);
+		this.sendToAllClients(client.getInfo(loginKey) + "> " + msg);
 	}
   }
     
@@ -114,7 +108,7 @@ public class EchoServer extends AbstractServer
    */
   @Override
   protected void clientConnected(ConnectionToClient client) {
-	  System.out.println("Client " + client + " has connected to the server");
+	  System.out.println(client.getInfo(loginKey) + " has connected to the server");
   }
 
   /**
@@ -123,7 +117,7 @@ public class EchoServer extends AbstractServer
    */
   @Override
   synchronized protected void clientDisconnected(ConnectionToClient client) {
-	  System.out.println("Client " + client + " has disconnected from the server");
+	  System.out.println(client.getInfo(loginKey) + " has disconnected from the server");
   }
   
   //Class methods ***************************************************

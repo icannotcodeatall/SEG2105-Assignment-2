@@ -100,43 +100,37 @@ public class ChatClient extends AbstractClient
 	  String[] commandSplit = command.split(" ");
 	  switch(commandSplit[0]) {
 	  	case "quit":
-			clientUI.display("Quitting");
-			closeConnection();
 			quit();
 			break;
 		case "logoff":
-			clientUI.display("Logging off");
 			closeConnection();
 			break;
 		case "sethost":
 			if (isConnected()) {
-				clientUI.display("Cannot set host unless logged off");
+				clientUI.display("ERROR - Cannot set host unless logged off");
 			} else {
 				if (commandSplit.length > 1) {
-					clientUI.display("Host has been set to: " + commandSplit[1]);
 					setHost(commandSplit[1]);
 				} else {
-					clientUI.display("Host parameter missing");
+					clientUI.display("ERROR - Host parameter missing");
 				}
 			}
 			break;
 		case "setport":
 			if (isConnected()) {
-				clientUI.display("Cannot set port unless logged off");
+				clientUI.display("ERROR - Cannot set port unless logged off");
 			} else {
 				if (commandSplit.length > 1) {
-					clientUI.display("Port has been set to: " + commandSplit[1]);
 					setPort(Integer.parseInt(commandSplit[1]));
 				} else {
-					clientUI.display("Port parameter missing");
+					clientUI.display("ERROR - Port parameter missing");
 				}
 			}
 			break;
 		case "login":
 			if (isConnected()) {
-				clientUI.display("Cannot log in as user is already connected to server");
+				clientUI.display("ERROR - Cannot log in as user is already connected to server");
 			} else {
-				clientUI.display("Logging in");
 				openConnection();
 			}
 			break;
@@ -147,7 +141,7 @@ public class ChatClient extends AbstractClient
 			clientUI.display("Port is: " + getPort());
 			break;
 		default:
-			clientUI.display("Command not recognized");
+			clientUI.display("ERROR - Command not recognized");
 	  }
   }
   

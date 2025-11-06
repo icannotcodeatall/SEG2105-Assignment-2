@@ -86,36 +86,31 @@ public class ServerConsole implements ChatIF
 	  String[] commandSplit = command.split(" ");
 	  switch(commandSplit[0]) {
 	  	case "quit":
-			display("Quitting the server");
 			server.stopListening();
 			server.close();
 			System.exit(0);
 			break;
 		case "stop":
-			display("Stopping the server");
 			server.stopListening();
 			break;
 		case "close":
-			display("Closing the server");
 			server.close();
 			break;
 		case "setport":
 			if (server.isListening() || server.getNumberOfClients() > 0) {
-				display("Cannot set port unless server is closed");
+				display("ERROR - Cannot set port unless server is closed");
 			} else {
 				if (commandSplit.length > 1) {
-					display("Port has been set to: " + commandSplit[1]);
 					server.setPort(Integer.parseInt(commandSplit[1]));
 				} else {
-					display("Port parameter missing");
+					display("ERROR - Port parameter missing");
 				}
 			}
 			break;
 		case "start":
 			if (server.isListening()) {
-				display("Cannot start server as it is already listening for clients");
+				display("ERROR - Cannot start server as it is already listening for clients");
 			} else {
-				display("Starting server");
 				server.listen();
 			}
 			break;
@@ -123,7 +118,7 @@ public class ServerConsole implements ChatIF
 			display("Port is: " + server.getPort());
 			break;
 		default:
-			display("Command not recognized");
+			display("ERROR - Command not recognized");
 	  }
   }
 
